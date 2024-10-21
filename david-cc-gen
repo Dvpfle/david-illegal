@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vintage Credit Card Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> <!-- Modern font -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif; /* Modern sans-serif font */
+            background: #1a1a1a; /* Dark background for dark mode */
+            color: #ffffff; /* White text for readability */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            position: relative;
+            transition: background 0.3s, color 0.3s;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
+            opacity: 1;
+            transition: opacity 1s ease, transform 1s ease;
+            z-index: 10;
+            transform: scale(1.2);
+        }
+        .overlay.fade-out {
+            opacity: 0;
+            transform: scale(1);
+            pointer-events: none;
+        }
+        .overlay h1 {
+            font-size: 36px;
+            color: #eae3d2; /* Light vintage color */
+            text-shadow: 0 0 10px #eae3d2, 0 0 20px #28a745; /* Glow effect */
+        }
+        .container {
+            background-color: #2c2c2c; /* Dark container background */
+            border: 20px solid #444; /* Darker border for vintage look */
+            border-radius: 15px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            position: relative;
+            width: 90%;
+            max-width: 400px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            z-index: 5;
+        }
+        .container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        button {
+            padding: 12px 25px;
+            background: #444; /* Dark background for the button */
+            color: #ffffff; /* White text color */
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.2);
+        }
+        button:hover {
+            background: #555; /* Slightly lighter on hover */
+            transform: scale(1.05); /* Scale on hover */
+        }
+        .toggle-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background: #444;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s ease;
+            font-size: 14px;
+        }
+        .toggle-button:hover {
+            background: #555;
+            transform: scale(1.05);
+        }
+        .card-info {
+            margin-top: 20px;
+            font-size: 18px;
+            background-color: #3c3c3c; /* Card info background */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .card-info.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .glow {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 16px;
+            color: #ffffff; /* White text */
+            text-shadow: 0 0 10px #ffffff, 0 0 20px #28a745; /* Glow effect */
+        }
+        .tiny-glow {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            font-size: 12px;
+            color: #ffffff; /* White text */
+            text-shadow: 0 0 10px #ffffff, 0 0 20px #28a745; /* Glow effect */
+        }
+
+        /* Light mode styles */
+        .light-mode {
+            background: #ffffff; /* Light background */
+            color: #000000; /* Black text */
+        }
+        .light-mode .container {
+            background-color: #f4f4f4; /* Light container background */
+            border: 20px solid #ccc; /* Lighter border */
+        }
+        .light-mode .card-info {
+            background-color: #eaeaea; /* Light card info background */
+        }
+        .light-mode .toggle-button {
+            background: #ddd; /* Light background for toggle button */
+            color: #000; /* Black text for toggle button */
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay">
+        <h1>Made by David</h1>
+    </div>
+    <div class="container" id="container">
+        <h1>Credit Card Generator</h1>
+        <button onclick="generateCard()">Generate Card</button>
+        <div class="card-info" id="cardInfo"></div>
+    </div>
+    <button class="toggle-button" id="toggleButton">Switch to Light Mode</button>
+    <div class="glow">(Might work)</div>
+    <div class="tiny-glow">(does not include the address/zipcode)</div>
+
+    <script>
+        window.onload = function() {
+            const overlay = document.getElementById('overlay');
+            const container = document.getElementById('container');
+
+            setTimeout(() => {
+                overlay.classList.add('fade-out');
+
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    container.classList.add('show');
+                }, 1000);
+            }, 1000);
+        };
+
+        function generateCard() {
+            const cardInfoDiv = document.getElementById('cardInfo');
+            cardInfoDiv.classList.remove('show');
+
+            setTimeout(() => {
+                const cardNumber = generateCardNumber();
+                const expiryDate = generateExpiryDate();
+                const cvv = generateCVV();
+
+                cardInfoDiv.innerHTML = `
+                    <p><strong>Card Number:</strong> ${cardNumber}</p>
+                    <p><strong>Expiry Date:</strong> ${expiryDate}</p>
+                    <p><strong>CVV:</strong> ${cvv}</p>
+                `;
+
+                cardInfoDiv.classList.add('show');
+            }, 500);
+        }
+
+        function generateCardNumber() {
+            let cardNumber = '';
+            for (let i = 0; i < 16; i++) {
+                cardNumber += Math.floor(Math.random() * 10);
+                if (i % 4 === 3 && i !== 15) cardNumber += ' ';
+            }
+            return cardNumber;
+        }
+
+        function generateExpiryDate() {
+            const month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');
+            const year = String(Math.floor(Math.random() * 5) + 2024).slice(2);
+            return `${month}/${year}`;
+        }
+
+        function generateCVV() {
+            return Math.floor(Math.random() * 900 + 100).toString();
+        }
+
+        // Light/Dark mode toggle
+        const toggleButton = document.getElementById('toggleButton');
+        let isLightMode = false;
+
+        toggleButton.onclick = function() {
+            isLightMode = !isLightMode;
+
+            if (isLightMode) {
+                document.body.classList.add('light-mode');
+                toggleButton.textContent = 'Switch to Dark Mode';
+            } else {
+                document.body.classList.remove('light-mode');
+                toggleButton.textContent = 'Switch to Light Mode';
+            }
+        };
+    </script>
+</body>
+</html>
